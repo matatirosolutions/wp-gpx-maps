@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: WP-GPX-Maps
-Plugin URI: http://www.devfarm.it/
-Description: Draws a GPX track with altitude chart
-Version: 1.3.9
-Author: Bastianon Massimo
-Author URI: http://www.pedemontanadelgrappa.it/
+Plugin URI: https://github.com/matatirosolutions/wp-gpx-plugin
+Description: Draws a GPX track with altitude chart - this is a fork of the plugin from http://www.devfarm.it/
+Version: 2.0.0
+Author: Steve Winter
+Author URI: https://msdev.co.uk/
 */
 
 //error_reporting (E_ALL);
@@ -249,6 +249,7 @@ function handle_WP_GPX_Maps_Shortcodes($attr, $content='')
 	$p_total_ele_up =     findValue($attr, "summaryeleup",       "wpgpxmaps_summary_total_ele_up",   false);
 	$p_total_ele_down =   findValue($attr, "summaryeledown",     "wpgpxmaps_summary_total_ele_down", false);
 	$p_avg_speed =        findValue($attr, "summaryavgspeed",    "wpgpxmaps_summary_avg_speed",      false);
+	$p_max_speed =        findValue($attr, "summarymaxspeed",    "wpgpxmaps_summary_max_speed",      false);
 	$p_total_time =       findValue($attr, "summarytotaltime",   "wpgpxmaps_summary_total_time",     false);
 	
 	$usegpsposition =     findValue($attr, "usegpsposition",     "wpgpxmaps_usegpsposition",         false);
@@ -372,6 +373,7 @@ function handle_WP_GPX_Maps_Shortcodes($attr, $content='')
 		$total_ele_up = $points->totalEleUp;
 		$total_ele_down = $points->totalEleDown;
 		$avg_speed = $points->avgSpeed;
+		$max_speed = $points->maxSpeed;
 		$tot_len = $points->totalLength;
 			
 		if (is_array ($points_x_lat))
@@ -608,6 +610,7 @@ function handle_WP_GPX_Maps_Shortcodes($attr, $content='')
 										"total_ele_up"        => $total_ele_up,
 										"total_ele_down"      => $total_ele_down,
 										"avg_speed"           => $avg_speed,
+					                    "max_speed"           => $max_speed,
 										"tot_len"             => $tot_len,
 										"max_time"			  => $max_time,
 										"min_time"			  => $min_time
@@ -690,32 +693,49 @@ function handle_WP_GPX_Maps_Shortcodes($attr, $content='')
 	// print summary
 	if ($summary=='true' && ( $points_graph_speed != '' || $points_graph_ele != '' || $points_graph_dist != '') ) {
 	
-		$output .= "<div id='wpgpxmaps_summary_".$r."' class='wpgpxmaps_summary'>";
-		if ($points_graph_dist != '' && $p_tot_len == 'true')
+		$output .= "<table id='wpgpxmaps_summary_".$r."' class='wpgpxmaps_summary'>";
+		if (($points_graph_dist != '' && $p_tot_len == 'true') || ($p_total_time == 'true' && $max_time > 0))
 		{
-			$output .= "<span class='totlen'><span class='summarylabel'>".__("Total distance", "wp-gpx-maps").":</span><span class='summaryvalue'> $tot_len</span></span><br />";
+		    $output .= '<tr>';
+		    if ($points_graph_dist != '' && $p_tot_len == 'true')
+		    {
+		      $output .= "<td class='totlen'><span class='summarylabel'>".__("Total distance", "wp-gpx-maps").":</span></td><td><span class='summaryvalue'> $tot_len</span></td>";
+		    }
+		    if ($p_total_time == 'true' && $max_time > 0)
+		    {
+		        $time_diff = date("H:i:s", ($max_time - $min_time));
+		        $output .= "<td class='totaltime'><span class='summarylabel'>".__("Total Time", "wp-gpx-maps").":</span></td><td><span class='summaryvalue'> $time_diff</span></td>";
+		    }
+		    $output .= '</tr>';
 		}
 		if ($points_graph_ele != '')
 		{
-			if ($p_max_ele == 'true')
-				$output .= "<span class='maxele'><span class='summarylabel'>".__("Max elevation", "wp-gpx-maps").":</span><span class='summaryvalue'> $max_ele</span></span><br />";
+		    $output .= '<tr>';
+		    if ($p_max_ele == 'true')
+				$output .= "<td class='maxele'><span class='summarylabel'>".__("Max elevation", "wp-gpx-maps").":</span></td><td><span class='summaryvalue'> $max_ele</span></td>";
 			if ($p_min_ele == 'true')
-				$output .= "<span class='minele'><span class='summarylabel'>".__("Min elevation", "wp-gpx-maps").":</span><span class='summaryvalue'> $min_ele</span></span><br />";
+				$output .= "<td class='minele'><span class='summarylabel'>".__("Min elevation", "wp-gpx-maps").":</span></td><td><span class='summaryvalue'> $min_ele</span></td>";
+			$output .= '</tr><tr>';
 			if ($p_total_ele_up == 'true')
-				$output .= "<span class='totaleleup'><span class='summarylabel'>".__("Total climbing", "wp-gpx-maps").":</span><span class='summaryvalue'> $total_ele_up</span></span><br />";
+				$output .= "<td class='totaleleup'><span class='summarylabel'>".__("Total climbing", "wp-gpx-maps").":</span></td><td><span class='summaryvalue'> $total_ele_up</span></td>";
 			if ($p_total_ele_down == 'true')
-				$output .= "<span class='totaleledown'><span class='summarylabel'>".__("Total descent", "wp-gpx-maps").":</span><span class='summaryvalue'> $total_ele_down</span></span><br />";
+				$output .= "<td class='totaleledown'><span class='summarylabel'>".__("Total descent", "wp-gpx-maps").":</span></td><td><span class='summaryvalue'> $total_ele_down</span></td>";
+			$output .= '</tr>';
 		}
-		if ($points_graph_speed != '' && $p_avg_speed == 'true')
+		if ($points_graph_speed != '' && ($p_avg_speed == 'true' || $p_max_speed == 'true'))
 		{
-			$output .= "<span class='avgspeed'><span class='summarylabel'>".__("Average speed", "wp-gpx-maps").":</span><span class='summaryvalue'> $avg_speed</span></span><br />";
+		    $output .= '<tr>';
+		    if ($p_avg_speed == 'true')
+		        $output .= "<td class='avgspeed'><span class='summarylabel'>".__("Average speed", "wp-gpx-maps").":</span></td><td><span class='summaryvalue'> $avg_speed</span></td>";
+		    if ($p_max_speed == 'true')
+		        $output .= "<td class='maxspeed'><span class='summarylabel'>".__("Maximum speed", "wp-gpx-maps").":</span></td><td><span class='summaryvalue'> $max_speed</span></td>";
 		}
-		if ($p_total_time == 'true' && $max_time > 0)
-		{		
-			$time_diff = date("H:i:s", ($max_time - $min_time));
-			$output .= "<span class='totaltime'><span class='summarylabel'>".__("Total Time", "wp-gpx-maps").":</span><span class='summaryvalue'> $time_diff</span></span><br />";			
-		}
-		$output .= "</div>";
+		//if ($p_total_time == 'true' && $max_time > 0)
+		//{		
+		//	$time_diff = date("H:i:s", ($max_time - $min_time));
+		//	$output .= "<span class='totaltime'><span class='summarylabel'>".__("Total Time", "wp-gpx-maps").":</span><span class='summaryvalue'> $time_diff</span></span><br />";			
+		//}
+		$output .= "</table>";
 	}
 	
 	// print download link
@@ -869,7 +889,7 @@ function WP_GPX_Maps_install() {
 	add_option('wpgpxmaps_show_cadence','','','yes');
 	add_option('wpgpxmaps_zoomonscrollwheel','','','yes');
 	add_option('wpgpxmaps_download','','','yes');
-	add_option('wpgpxmaps_summary','','','yes');	
+	add_option('wpgpxmaps_summary','','','yes');
 	add_option('wpgpxmaps_skipcache','','','yes');
 }
 

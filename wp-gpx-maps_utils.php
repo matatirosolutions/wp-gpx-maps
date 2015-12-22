@@ -209,6 +209,7 @@
 		$points->totalEleUp = 0;
 		$points->totalEleDown = 0;
 		$points->avgSpeed = 0;
+		$points->maxSpeed = 0;
 		$points->totalLength = 0;
 		
 		$gpx = simplexml_load_file($filePath);	
@@ -419,8 +420,8 @@
 				$points->totalLength = max($_dist);
 				$points->maxTime = max($_time);
 				$points->minTime = min($_time);
-				
-				$points->avgSpeed = array_sum($_speed) / count($_speed);
+				$points->avgSpeed = max($_dist) / (max($_time) - min($_time));
+				$points->maxSpeed = max($_speed);
 			} catch (Exception $e) { }
 		
 		}

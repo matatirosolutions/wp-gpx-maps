@@ -33,6 +33,7 @@
 	$total_ele_up = get_option("wpgpxmaps_summary_total_ele_up");
 	$total_ele_down = get_option("wpgpxmaps_summary_total_ele_down");
 	$avg_speed = get_option("wpgpxmaps_summary_avg_speed");
+	$avg_speed = get_option("wpgpxmaps_summary_max_speed");
 	$total_time = get_option("wpgpxmaps_summary_total_time");
 	
 	$usegpsposition = get_option("wpgpxmaps_usegpsposition");
@@ -148,21 +149,27 @@
 			</td>
 		</tr>
 		<tr>
-			<th scope="row">Min Elevation:</th>
+			<th scope="row">Total climbing:</th>
 			<td>
 				<input name="wpgpxmaps_summary_total_ele_up" type="checkbox" value="true" <?php if($total_ele_up == true){echo('checked');} ?> onchange="this.value = (this.checked)"  /> <i>Print Total climbing</i>
 			</td>
 		</tr>
 		<tr>
-			<th scope="row">Min Elevation:</th>
+			<th scope="row">total descent:</th>
 			<td>
 				<input name="wpgpxmaps_summary_total_ele_down" type="checkbox" value="true" <?php if($total_ele_down == true){echo('checked');} ?> onchange="this.value = (this.checked)"  /> <i>Print Total descent</i>
 			</td>
 		</tr>
 		<tr>
-			<th scope="row">Min Elevation:</th>
+			<th scope="row">Average speed:</th>
 			<td>
 				<input name="wpgpxmaps_summary_avg_speed" type="checkbox" value="true" <?php if($avg_speed == true){echo('checked');} ?> onchange="this.value = (this.checked)"  /> <i>Print Average Speed</i>
+			</td>
+		</tr>
+		<tr>
+			<th scope="row">Maximum speed:</th>
+			<td>
+				<input name="wpgpxmaps_summary_max_speed" type="checkbox" value="true" <?php if($max_speed == true){echo('checked');} ?> onchange="this.value = (this.checked)"  /> <i>Print Maximum Speed</i>
 			</td>
 		</tr>
 		<tr>
