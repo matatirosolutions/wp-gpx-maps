@@ -1,5 +1,5 @@
 {
-  "name": "matatirosolutions/wp-gpx-plugin",
+  "name": "matatirosolutions/wp-gpx-maps",
   "description": "MSDev fork of https://github.com/devfarm-it/wp-gpx-maps",
   "type": "wordpress-plugin",
   "require": {

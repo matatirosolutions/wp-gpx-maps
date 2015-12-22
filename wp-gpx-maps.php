@@ -303,6 +303,7 @@ function handle_WP_GPX_Maps_Shortcodes($attr, $content='')
 			$total_ele_up = $cache_obj["total_ele_up"];
 			$total_ele_down = $cache_obj["total_ele_down"];
 			$avg_speed = $cache_obj["avg_speed"];
+			$max_speed = $cache_obj["max_speed"];
 			$tot_len = $cache_obj["tot_len"];
 			
 		} catch (Exception $e) {
@@ -513,6 +514,7 @@ function handle_WP_GPX_Maps_Shortcodes($attr, $content='')
 		}
 
 		$avg_speed = convertSpeed($avg_speed,$uomspeed,true);
+		$max_speed = convertSpeed($max_speed,$uomspeed,true);
 		$waypoints = '[]';
 		
 		if ($showW == true) {
