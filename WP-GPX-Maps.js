@@ -695,7 +695,7 @@ Author URI: http://www.pedemontanadelgrappa.it/
 
 		});
 		
-		var graphh = jQuery('#hchart_' + params.targetId).css("height");
+		var graphh = jQuery('#hchart_' + params.targetId+'_elev').css("height");
 		
 		if (graphDist != '' && (graphEle != '' || graphSpeed != '' || graphHr != '' || graphAtemp != '' || graphCad != '') && graphh != "0px")
 		{
@@ -750,8 +750,9 @@ Author URI: http://www.pedemontanadelgrappa.it/
 			// define the options
 			var hoptions = {
 				chart: {
-					renderTo: 'hchart_' + params.targetId,
+					renderTo: 'hchart_' + params.targetId + '_elev',
 					type: 'area',
+					marginLeft: 60,
 					events: {
 						selection: function(event) {
 
@@ -875,6 +876,135 @@ Author URI: http://www.pedemontanadelgrappa.it/
 				},	
 				series: []
 			};
+			
+			var soptions = {
+					chart: {
+						renderTo: 'hchart_' + params.targetId + '_speed',
+						type: 'area',
+						marginLeft: 60,
+						events: {
+							selection: function(event) {
+
+								if (event.xAxis) {
+								
+									el_report.innerHTML = 'Zoom: '+ (event.xAxis[0].min).toFixed(l_x.dec) + ' ' + l_x.suf + ' -> '+ (event.xAxis[0].max).toFixed(decPoint) + ' ' + l_x.suf + '<br />';						
+								
+									var seriesLength = event.currentTarget.series.length;
+								
+									for (var i = 0; i < seriesLength; i++) {
+									
+										var dataX = {value: 0, count: 0};
+										
+										var serie = event.currentTarget.series[i];
+										var points = serie.points;
+										var min = event.xAxis[0].min, max = event.xAxis[0].max;
+										
+										for (var j = 0; j < points.length; j++) {
+											if (points[j].x >= min && points[j].x <= max) {
+												dataX.value += points[j].y;
+												dataX.count +=1;
+											}
+										}
+										
+										var name = serie.name;
+										
+										if (name == lng.altitude) {
+											el_report.innerHTML += name + ' avg: ' + (dataX.value / dataX.count).toFixed(l_y.dec) + " " + l_y.suf + "<br />";
+										} else if (name == lng.speed) {
+											el_report.innerHTML += name + ' avg: ' + (dataX.value / dataX.count).toFixed(l_s.dec) + " " + l_s.suf + "<br />";
+										} else if (name == lng.grade) {
+											el_report.innerHTML += name + ' avg: ' + (dataX.value / dataX.count).toFixed(l_grade.dec) + " " + l_grade.suf + "<br />";
+										} else if (name == lng.cadence) {
+											el_report.innerHTML += name + ' avg: ' + (dataX.value / dataX.count).toFixed(l_cad.dec) + " " + l_cad.suf + "<br />";
+										} else if (name == lng.heartRate) {
+											el_report.innerHTML += name + ' avg: ' + (dataX.value / dataX.count).toFixed(l_hr.dec) + " " + l_hr.suf + "<br />";
+										} else
+										{
+											el_report.innerHTML += serie.name + ' avg: ' + dataX.value / dataX.count + "<br />";
+										}
+
+									}
+
+									el_report.innerHTML += "<br />"
+									
+								} else {
+									el_report.innerHTML = '';
+								}
+							}
+						},
+						zoomType: 'x'
+					},
+					title: {
+						text: null
+					},
+					xAxis: {
+						type: 'integer',
+						//gridLineWidth: 1,
+						//tickInterval: 1000,
+						labels: {
+							formatter: function() {
+								return Highcharts.numberFormat(this.value, l_x.dec,decPoint,thousandsSep) + l_x.suf;
+							}
+						}
+					},
+					yAxis: [],
+					legend: {
+						align: 'center',
+						verticalAlign: 'top',
+						y: -5,
+						floating: true,
+						borderWidth: 0
+					},
+					tooltip: {
+						shared: true,
+						crosshairs: true,
+						formatter: function() {
+							if (marker)
+							{
+								var schart_xserie = hchart.xAxis[0].series[0].data;
+								for(var i=0; i<schart_xserie.length;i++){
+									var item = schart_xserie[i];
+									if(item.x == this.x)
+									{
+										var point = getItemFromArray(mapData,i)
+										if (point)
+										{
+											marker.setPosition(new google.maps.LatLng(point[0],point[1]));
+										}
+										marker.setTitle(lng.currentPosition);
+										i+=10000000;
+									}
+								}			
+							}
+							var tooltip = "<b>" + Highcharts.numberFormat(this.x, l_x.dec,decPoint,thousandsSep) + l_x.suf + "</b><br />"; 
+							for (i=0; i < this.points.length; i++)
+							{
+								tooltip += this.points[i].series.name + ": " + Highcharts.numberFormat(this.points[i].y, l_y_arr[i].dec,decPoint,thousandsSep) + l_y_arr[i].suf + "<br />"; 					
+							}
+							return tooltip;
+						}
+					},
+					plotOptions: {
+						area: {
+							fillOpacity: 0.1,
+							connectNulls : true,
+							marker: {
+								enabled: false,
+								symbol: 'circle',
+								radius: 2,
+								states: {
+									hover: {
+										enabled: true
+									}
+								}
+							}					
+						}
+					},
+					credits: {
+						enabled: false
+					},	
+					series: []
+				};
 		
 			if (graphEle != '')
 			{
@@ -899,7 +1029,7 @@ Author URI: http://www.pedemontanadelgrappa.it/
 				var yaxe = { 
 					title: { text: null },
 					labels: {
-						align: 'left',
+					//	align: 'left',
 						formatter: function() {
 							return Highcharts.numberFormat(this.value, l_y.dec,decPoint,thousandsSep) + l_y.suf;
 						}
@@ -978,10 +1108,13 @@ Author URI: http://www.pedemontanadelgrappa.it/
 					labels: {
 						//align: 'right',
 						formatter: function() {
+							if(this.value == 0) {
+								return null;
+							}
 							return Highcharts.numberFormat(this.value, l_s.dec,decPoint,thousandsSep) + l_s.suf;
 						}
 					},
-					opposite: true
+					//opposite: true
 				}
 							
 				if ( chartFrom2 != '' )
@@ -996,15 +1129,15 @@ Author URI: http://www.pedemontanadelgrappa.it/
 					yaxe.endOnTick = false;				
 				}
 									
-				hoptions.yAxis.push(yaxe);
-				hoptions.series.push({
-										name: lng.speed,
-										lineWidth: 1,
-										marker: { radius: 0 },
-										data : speedData,
-										color: color3,
-										yAxis: hoptions.series.length
-									});			
+				soptions.yAxis.push(yaxe);
+				soptions.series.push({
+					name: lng.speed,
+					lineWidth: 1,
+					marker: { radius: 0 },
+					data : speedData,
+					color: color3,
+					yAxis: soptions.series.length
+				});			
 				
 				l_y_arr.push(l_s);
 			}
@@ -1172,10 +1305,11 @@ Author URI: http://www.pedemontanadelgrappa.it/
 			}
 
 			var hchart = new Highcharts.Chart(hoptions);
-		
+			var schart = new Highcharts.Chart(soptions);
 		}
 		else  {
-			jQuery("#hchart_" + params.targetId).css("display","none");
+			jQuery("#hchart_" + params.targetId+'_elev').css("display","none");
+			jQuery("#hchart_" + params.targetId+'_speed').css("display","none");
 		}
 	
         return this;

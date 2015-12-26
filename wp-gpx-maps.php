@@ -115,7 +115,7 @@ function handle_WP_GPX_Maps_folder_Shortcodes($attr, $content=''){
 
 	$folder =             findValue($attr, "folder",             "",                                 "");
 	$pointsoffset =       findValue($attr, "pointsoffset",       "wpgpxmaps_pointsoffset",     		 10);
-	$distanceType =       findValue($attr, "distanceType",        "wpgpxmaps_distance_type", 		 0);
+	$distanceType =       findValue($attr, "distanceType",       "wpgpxmaps_distance_type", 		 0);
 	$donotreducegpx =     findValue($attr, "donotreducegpx",     "wpgpxmaps_donotreducegpx", 		 false);
 	$uom =                findValue($attr, "uom",                "wpgpxmaps_unit_of_measure",        "0");
 	
@@ -633,7 +633,10 @@ function handle_WP_GPX_Maps_Shortcodes($attr, $content='')
 				<div id="map_'.$r.'" style="width:'.$w.'; height:'.$mh.'"></div>
 				<div id="wpgpxmaps_'.$r.'_osm_footer" class="wpgpxmaps_osm_footer" style="display:none;"><span> &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors</span></div>			
 			</div>
-			<div id="hchart_'.$r.'" class="plot" style="width:'.$w.'; height:'.$gh.'"></div>
+			<div id="chart_container">
+		      <div id="hchart_'.$r.'_elev" class="plot" style="width:'.$w.'; height:'.$gh.'" class="chart"></div>
+		      <div id="hchart_'.$r.'_speed" class="plot" style="width:'.$w.'; height:'.$gh.'" class="chart"></div>
+		    </div>
 			<div id="ngimages_'.$r.'" class="ngimages" style="display:none">'.$ngimgs_data.'</div>
 			<div id="report_'.$r.'" class="report"></div>
 		</div>
@@ -929,5 +932,3 @@ function WP_GPX_Maps_remove() {
 	delete_option('wpgpxmaps_summary');
 	delete_option('wpgpxmaps_skipcache');
 }
-
-?>
