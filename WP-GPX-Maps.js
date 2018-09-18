@@ -601,7 +601,7 @@ Author URI: http://www.pedemontanadelgrappa.it/
 			
 			if (currentIcon == '')
 			{
-				currentIcon = "http://maps.google.com/mapfiles/kml/pal4/icon25.png";
+				currentIcon = "https://maps.google.com/mapfiles/kml/pal4/icon25.png";
 			}
 			
 			var current = new google.maps.MarkerImage(currentIcon,

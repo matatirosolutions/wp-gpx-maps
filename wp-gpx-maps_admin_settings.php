@@ -231,7 +231,14 @@
 				<input type="radio" name="wpgpxmaps_map_type" value="OSM6" <?php if ($t == 'OSM6') echo 'checked'; ?>> MapToolKit - Terrain<br />
 			</td>
 		</tr>
-		
+
+        <tr>
+            <th scope="row">Google Maps API key:</th>
+            <td>
+                <input name="wpgpxmaps_map_api_key" value="<?php echo get_option('wpgpxmaps_map_api_key'); ?>" style="width:400px" /> <em>Google Maps API key (you need this!)</em>
+            </td>
+        </tr>
+
 		<tr>
 			<th scope="row">Start Icon:</th>
 			<td>
